@@ -1,16 +1,9 @@
 /*Prints a matrix using recursion*/
-printMatrix([], _N).
-printMatrix([Head|Tail], N) :-
-    % border('v',VerticalBorder),
-    % border(N,HorizontalBorder),
-    % indice(N, I),
-    % write(I),
-    N1 is N + 1,
+printMatrix([]).
+printMatrix([Head|Tail]) :-
     printLine(Head),
-    % write(VerticalBorder),nl,
-    % write(HorizontalBorder),
     nl,
-    printMatrix(Tail, N1).
+    printMatrix(Tail).
 
 /*Prints a line from a matrix*/
 printLine([]).
