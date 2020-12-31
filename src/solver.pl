@@ -5,14 +5,19 @@ row([1,0,0,0,0,0,fulcrum,6]).
 /* testing function */
 t :-
     generateRandomBoard(B),
+    write('TORQUES FROM ROWS:\n'),
     row_constraint(B),
-    printMatrix(B).
+    printMatrix(B),nl,nl,
+    write('TORQUES FROM COLS:\n'),
+    transpose(B, B1),
+    row_constraint(B1),
+    printMatrix(B1).
 
 /* constraint for row to be valid */
 row_constraint([]).
 row_constraint([List|T]) :-
     ((nth0(N, List, fulcrum, Remainder), \+nth0(_N1, Remainder, fulcrum), checkTorque(List, N)) % check row weight if only has 1 fulcrum
-    ; (write('\n'))),
+    ; (write(''))),
     row_constraint(T).
 
 /* check if torques at both sides are equal*/
