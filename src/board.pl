@@ -1,10 +1,20 @@
-exampleBoard(B) :-
-    B = [[0, 0, 0, 0, 0, 0, fulcrum, 0],
-    [0, 0, 0, fulcrum, 0, 0, 0, 0],
-    [fulcrum, 0, 0, 0, 0, 0, 0, fulcrum],
+exampleBoard(B, [6, 6, 8]) :-
+    B = [[0, 0, 0, 0, 0, 0, -1, 0],
+    [0, 0, 0, -1, 0, 0, 0, 0],
+    [-1, 0, 0, 0, 0, 0, 0, -1],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, fulcrum, 0, 0]].
+    [0, 0, 0, 0, 0, -1, 0, 0]].
+
+exampleBoard2(B, [8, 6, 7]) :-
+    B = [
+        [0,0,0,0,-1,0,0],
+        [0,0,0,0,-1,0,0],
+        [-1,0,0,0,0,0,-1],
+        [0,0,0,0,0,0,0],
+        [0,-1,0,0,0,0,0],
+        [0,0,0,-1,0,0,0]].
+
 
 emptyBoard(B) :-
     B = [[0, 0, 0, 0, 0, 0, 0, 0],
@@ -14,7 +24,7 @@ emptyBoard(B) :-
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0]].
 
-symbol('fulcrum', S) :- S = ' F '.
+symbol(-1, S) :- S = ' F '.
 symbol(0, S) :- S = ' . '.
 symbol(1, S) :- S = ' 1 '.
 symbol(2, S) :- S = ' 2 '.
@@ -31,7 +41,7 @@ symbol(9, S) :- S = ' 9 '.
 %%%%%%%%%%%%%
 
 /* Generates a random board and fills it with fulcrums and numbers */
-generateRandomBoard(FinalBoard) :-
+generateRandomBoard(FinalBoard, [Digits, Rows, Cols]) :-
     clear,
     random(4, 10, Rows),
     random(4, 10, Cols),
@@ -39,8 +49,7 @@ generateRandomBoard(FinalBoard) :-
     random(5, 8, Fulcrums),
     format('Rows: ~p  Cols: ~p\nDigits: ~p Fulcrums: ~p\n', [Rows, Cols, 1-Digits, Fulcrums]),
     createBaseBoard(0, Rows, Cols, [], Board),
-    addFulcrums(0, Fulcrums, Rows, Cols, Board, FinalBoard1),
-    addNumbers(0, Digits, Rows, Cols, FinalBoard1, FinalBoard).
+    addFulcrums(0, Fulcrums, Rows, Cols, Board, FinalBoard).
 
 
 /* creates the base for the board */
@@ -65,7 +74,7 @@ addFulcrums(Current, Fulcrums, Rows, Cols, CurrBoard, FinalBoard) :-
     Current < Fulcrums,
     Next is Current + 1,
     addFulcrum(Rows, Cols, CurrBoard, I, J),
-    replaceInMatrix(CurrBoard, I, J, fulcrum, CurrBoard2),
+    replaceInMatrix(CurrBoard, I, J, -1, CurrBoard2),
     addFulcrums(Next, Fulcrums, Rows, Cols, CurrBoard2, FinalBoard).
 /*generates valid fulcrum to add*/
 addFulcrum(Rows, Cols, CurrBoard, I, J):-
