@@ -1,21 +1,21 @@
 exampleBoard(B) :-
-    B = [[blank, blank, blank, blank, blank, blank, fulcrum, blank],
-    [blank, blank, blank, fulcrum, blank, blank, blank, blank],
-    [fulcrum, blank, blank, blank, blank, blank, blank, fulcrum],
-    [blank, blank, blank, blank, blank, blank, blank, blank],
-    [blank, blank, blank, blank, blank, blank, blank, blank],
-    [blank, blank, blank, blank, blank, fulcrum, blank, blank]].
+    B = [[0, 0, 0, 0, 0, 0, fulcrum, 0],
+    [0, 0, 0, fulcrum, 0, 0, 0, 0],
+    [fulcrum, 0, 0, 0, 0, 0, 0, fulcrum],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, fulcrum, 0, 0]].
 
 emptyBoard(B) :-
-    B = [[blank, blank, blank, blank, blank, blank, blank, blank],
-    [blank, blank, blank, blank, blank, blank, blank, blank],
-    [blank, blank, blank, blank, blank, blank, blank, blank],
-    [blank, blank, blank, blank, blank, blank, blank, blank],
-    [blank, blank, blank, blank, blank, blank, blank, blank],
-    [blank, blank, blank, blank, blank, blank, blank, blank]].
+    B = [[0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0]].
 
-symbol('blank', S) :- S = ' . '.
 symbol('fulcrum', S) :- S = ' F '.
+symbol(0, S) :- S = ' . '.
 symbol(1, S) :- S = ' 1 '.
 symbol(2, S) :- S = ' 2 '.
 symbol(3, S) :- S = ' 3 '.
@@ -48,7 +48,7 @@ createBaseList(J, J, TmpList, FinalList):- FinalList = TmpList.
 createBaseList(J, Cols, TmpList, FinalList) :-
     J < Cols,
     J1 is J + 1,
-    append(TmpList, [blank], TmpList2),
+    append(TmpList, [0], TmpList2),
     createBaseList(J1, Cols, TmpList2, FinalList).
 createBaseBoard(Rows, Rows, Cols, TmpBoard, FinalBoard) :- TmpBoard = FinalBoard.
 createBaseBoard(I, Rows, Cols, TmpBoard, FinalBoard) :-
@@ -72,7 +72,7 @@ addFulcrum(Rows, Cols, CurrBoard, I, J):-
     repeat, % repeat until a valid fulcrum is found
     random(0, Rows, Row), random(0, Cols, Col),
     checkEdges(Row, Col, Rows, Cols),
-    (\+getValueFromMatrix(CurrBoard, Row, Col, _) | getValueFromMatrix(CurrBoard, Row, Col, blank)),
+    (\+getValueFromMatrix(CurrBoard, Row, Col, _) | getValueFromMatrix(CurrBoard, Row, Col, 0)),
     checkSides(Row, Col, CurrBoard),
     I = Row, J = Col.
 
@@ -82,14 +82,14 @@ checkEdges(Row, Col, Rows, Cols) :-
     RowIndex is Rows - 1, ColIndex is Cols - 1,
     (Row \= 0 ; Col \= 0), (Row \= RowIndex | Col \= ColIndex),
     (Row \= 0 | Col \= ColIndex), (Col \= 0 | Row \= RowIndex).
-/* check if cells around are blank */
+/* check if cells around are 0 */
 checkSides(Row, Col, CurrBoard) :-
     PrevRow is Row - 1, PrevCol is Col - 1,
     NextRow is Row + 1, NextCol is Col + 1,
-    (\+getValueFromMatrix(CurrBoard, PrevRow, Col,_) | getValueFromMatrix(CurrBoard, PrevRow, Col, blank)), % above
-    (\+getValueFromMatrix(CurrBoard, NextRow, Col,_) | getValueFromMatrix(CurrBoard, NextRow, Col, blank)), % below
-    (\+getValueFromMatrix(CurrBoard, Row, PrevCol,_) | getValueFromMatrix(CurrBoard, Row, PrevCol, blank)), % left
-    (\+getValueFromMatrix(CurrBoard, Row, NextCol,_) | getValueFromMatrix(CurrBoard, Row, NextCol, blank)). % right
+    (\+getValueFromMatrix(CurrBoard, PrevRow, Col,_) | getValueFromMatrix(CurrBoard, PrevRow, Col, 0)), % above
+    (\+getValueFromMatrix(CurrBoard, NextRow, Col,_) | getValueFromMatrix(CurrBoard, NextRow, Col, 0)), % below
+    (\+getValueFromMatrix(CurrBoard, Row, PrevCol,_) | getValueFromMatrix(CurrBoard, Row, PrevCol, 0)), % left
+    (\+getValueFromMatrix(CurrBoard, Row, NextCol,_) | getValueFromMatrix(CurrBoard, Row, NextCol, 0)). % right
 
 
 /* adds numbers to board */
@@ -101,5 +101,5 @@ addNumbers(N, NMax, Rows, Cols, Board, FinalBoard) :-
 placeNumber(Rows, Cols, Board, Board2, N1) :-
     repeat,
     random(0, Rows, Row), random(0, Cols, Col),
-    getValueFromMatrix(Board, Row, Col, blank),
+    getValueFromMatrix(Board, Row, Col, 0),
     replaceInMatrix(Board, Row, Col, N1, Board2).
