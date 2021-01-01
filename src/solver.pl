@@ -5,6 +5,7 @@ row([1,0,0,0,0,0,-1,6]).
 /* testing function */
 t :-
     % generateRandomBoard(B, [Digits, Rows, Cols]),
+    reset_timer,
     exampleBoard4(B, [Digits, Rows, Cols]),
     printMatrix(B),
     write('Solving...'),nl,
@@ -21,8 +22,8 @@ t :-
     % write('Transposing...\n'),
     transpose(FinalBoard, TFBoard),
     torqueConstraint(TFBoard),
-
     labeling([], Solution),
+    print_time,
     fd_statistics,
     write(Solution),nl,
 
@@ -112,3 +113,9 @@ rightTorque(List, N, FinalTorque):-
     length(List, L),
     NReversed #= L - N - 1,
     leftTorque(ReversedList, 0, NReversed, 0, FinalTorque).
+
+reset_timer :- statistics(walltime,_).	
+print_time :-
+	statistics(walltime,[_,T]),
+	TS is ((T//10)*10)/1000,
+	nl, write('Time: '), write(TS), write('s'), nl, nl.
