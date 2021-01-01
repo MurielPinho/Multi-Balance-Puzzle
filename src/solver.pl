@@ -5,47 +5,58 @@ row([1,0,0,0,0,0,-1,6]).
 /* testing function */
 t :-
     % generateRandomBoard(B, [Digits, Rows, Cols]),
-    exampleBoard(B, [Digits, Rows, Cols]),
+    exampleBoard4(B, [Digits, Rows, Cols]),
     printMatrix(B),
     write('Solving...'),nl,
-    % Digits is 6, Rows is 6, Cols is 8,
     length(Solution, Digits),
     Dom is Rows * Cols - 1,
     domain(Solution, 0, Dom),
-    all_different(Solution),
+    all_distinct(Solution),
 
     % placing constraints
     constrainPlacing(Solution, Cols, Rows, B),
     addSolution(Solution, 1, Cols, B, FinalBoard),
-
     % torque constraints
     torqueConstraint(FinalBoard),
     % write('Transposing...\n'),
     transpose(FinalBoard, TFBoard),
     torqueConstraint(TFBoard),
 
+    reset_timer,
     labeling([], Solution),
+    print_time,
+    fd_statistics,
     write(Solution),nl,
 
     printMatrix(FinalBoard).
 
+reset_timer :- statistics(walltime,_).
+print_time :-
+	statistics(walltime,[_,T]),
+	TS is ((T//10)*10)/1000,
+	nl, write('Time: '), write(TS), write('s'), nl, nl.
+
+
 constrainPlacing([], _, _, _).
 constrainPlacing([H|T], Cols, Rows, B) :-
     getNthElement(H, Cols, B, Value),
+    Value #= 0,
     Line #= H/Cols,
     % Row
     getLine(0, Line, B, CurrentLine),
     findall(N, nth0(N, CurrentLine, -1), FulcrumsR),
     length(FulcrumsR, NFulcrumsRow),
+    NFulcrumsRow #= 1,
+
     % Col
     transpose(B, B1),
     Row #= mod(H, Cols),
     getLine(0, Row, B1, CurrentRow),
     findall(NR, nth0(NR, CurrentRow, -1), FulcrumsL),
     length(FulcrumsL, NFulcrumsCol),
+    NFulcrumsCol #= 1,
 
     % Constraints
-    Value #= 0, NFulcrumsRow #= 1, NFulcrumsCol #= 1,
 
     % Fulcrum position row
     nth0(0, FulcrumsR, FPosition1),
