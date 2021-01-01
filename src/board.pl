@@ -15,6 +15,26 @@ exampleBoard2(B, [8, 6, 7]) :-
         [0,-1,0,0,0,0,0],
         [0,0,0,-1,0,0,0]].
 
+exampleBoard3(B, [8, 4, 10]) :-
+    B = [
+        [0,0,0,0,0,-1,0,0,0,0],
+        [0,0,0,0,0,-1,0,0,0,0],
+        [-1,0,0,0,0,0,0,-1,0,-1],
+        [0,0,0,0,0,-1,0,0,0,0]
+        ].
+
+exampleBoard4(B, [6, 9, 12]) :-
+    B = [
+        [0,0,0,0,0,0,0,0,0,-1,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,-1,0,0,0,0,0,0,0,0],
+        [0,-1,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,-1,0,0,0,0,0,0]
+        ].
 
 emptyBoard(B) :-
     B = [[0, 0, 0, 0, 0, 0, 0, 0],
@@ -43,8 +63,8 @@ symbol(9, S) :- S = ' 9 '.
 /* Generates a random board and fills it with fulcrums and numbers */
 generateRandomBoard(FinalBoard, [Digits, Rows, Cols]) :-
     clear,
-    random(4, 10, Rows),
-    random(4, 10, Cols),
+    random(4, 8, Rows),
+    random(4, 8, Cols),
     random(6, 9, Digits),
     random(5, 8, Fulcrums),
     format('Rows: ~p  Cols: ~p\nDigits: ~p Fulcrums: ~p\n', [Rows, Cols, 1-Digits, Fulcrums]),
