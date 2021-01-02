@@ -39,22 +39,22 @@ t :-
 
 calcDomain([], _, _, FinalList, FinalList).
 calcDomain([H|T], Row, Cols, List, FinalList) :-
-    NextRow #= Row + 1,
-    Edge #= Cols - 1,
+    NextRow is Row + 1,
+    Edge is Cols - 1,
     write(H), nl,
     findall(N, nth0(N, H, -1), Fulcrums),
     length(Fulcrums, NFulcrums),
     (
-        (NFulcrums == 1, nth0(0, Fulcrums, Index), Index #> 0, Index #< Edge) -> Value #= Row*Cols, addDomain(H,Value,List,List2)
+        (NFulcrums == 1, nth0(0, Fulcrums, Index), Index > 0, Index < Edge) -> Value is Row*Cols, addDomain(H,Value,List,List2)
         ; List2 = List
     ),
     calcDomain(T, NextRow, Cols, List2, FinalList).
 
 addDomain([], _, FinalList, FinalList).
 addDomain([H|T], Value, List, FinalList) :-
-    NextValue #= Value + 1,
+    NextValue is Value + 1,
     (
-        H #= 0 -> append(List, [Value], List2) ; List2 = List
+        H == 0 -> append(List, [Value], List2) ; List2 = List
     ),
     addDomain(T, NextValue, List2, FinalList).
 
