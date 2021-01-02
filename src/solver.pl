@@ -3,12 +3,18 @@
 row([1,0,0,0,0,0,-1,6]).
 
 /* testing function */
-t :-
+solve(Number) :-
     % generateRandomBoard(B, [Digits, Rows, Cols]),
     reset_timer,
-    exampleBoard3(B, [Digits, Rows, Cols]),
-    printMatrix(B),
-    write('Solving...'),nl,
+    exampleBoard(Number, B, [Digits, Rows, Cols]),
+    nl,nl,nl,
+    printDivider(Cols),nl,
+    printMatrix(B,Cols),
+    nl,write('             Info'),nl,
+    nl,write('Columns:  '),write(Cols),nl,
+    write('Rows:     '),write(Rows),nl,
+    write('Digits:   '),write(Digits),nl,
+    nl,write('  Wait while puzzle is solved...'),nl,nl,nl,nl,nl,
     length(Solution, Digits),
 
     % Calc domain
@@ -33,10 +39,12 @@ t :-
     transpose(FinalBoard, TFBoard),
     torqueConstraint(TFBoard),
     labeling([], Solution),
+    nl,write('           Solution '),nl,nl,
+    printDivider(Cols),nl,
+    printMatrix(FinalBoard,Cols),
+    nl,write('         Statistics'),nl,
     print_time,
-    fd_statistics,
-    write(Solution),nl,
-    printMatrix(FinalBoard).
+    fd_statistics,nl,nl.
 
 calcRowDomain([], _, _, FinalList, FinalList).
 calcRowDomain([H|T], Row, Cols, List, FinalList) :-
@@ -172,4 +180,4 @@ reset_timer :- statistics(walltime,_).
 print_time :-
 	statistics(walltime,[_,T]),
 	TS is ((T//10)*10)/1000,
-	nl, write('Time: '), write(TS), write('s'), nl, nl.
+	nl, write('Time Spent: '), write(TS), write('s'), nl.
