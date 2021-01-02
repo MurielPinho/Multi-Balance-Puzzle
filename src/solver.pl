@@ -6,18 +6,20 @@ row([1,0,0,0,0,0,-1,6]).
 t :-
     % generateRandomBoard(B, [Digits, Rows, Cols]),
     reset_timer,
-    exampleBoard(B, [Digits, Rows, Cols]),
+    exampleBoard3(B, [Digits, Rows, Cols]),
     printMatrix(B),
     write('Solving...'),nl,
     length(Solution, Digits),
 
     % Calc domain
-    calcDomain(B, 0, Cols, [], ListDomain),
-    write(ListDomain),nl,
-    list_to_fdset(ListDomain, DomainSet),
+    calcRowDomain(B, 0, Cols, [], RowListDomain),
+    transpose(B, TB),
+    calcColDomain(TB, 0, Cols,Rows, [], ColListDomain),
 
-    % Dom is Rows * Cols - 1,
-    % domain(Solution, 0, Dom),
+    % printMatrix(TB),
+    list_to_fdset(RowListDomain, RowDomainSet),
+    list_to_fdset(ColListDomain, ColDomainSet),
+    fdset_intersection(RowDomainSet, ColDomainSet, DomainSet),
     applyDomain(Solution, DomainSet),
     all_distinct(Solution),
 
@@ -34,29 +36,48 @@ t :-
     print_time,
     fd_statistics,
     write(Solution),nl,
-
     printMatrix(FinalBoard).
 
-calcDomain([], _, _, FinalList, FinalList).
-calcDomain([H|T], Row, Cols, List, FinalList) :-
+calcRowDomain([], _, _, FinalList, FinalList).
+calcRowDomain([H|T], Row, Cols, List, FinalList) :-
     NextRow is Row + 1,
     Edge is Cols - 1,
-    write(H), nl,
     findall(N, nth0(N, H, -1), Fulcrums),
     length(Fulcrums, NFulcrums),
     (
-        (NFulcrums == 1, nth0(0, Fulcrums, Index), Index > 0, Index < Edge) -> Value is Row*Cols, addDomain(H,Value,List,List2)
+        (NFulcrums == 1, nth0(0, Fulcrums, Index), Index > 0, Index < Edge) -> Value is Row*Cols, addRowDomain(H,Value,List,List2)
         ; List2 = List
     ),
-    calcDomain(T, NextRow, Cols, List2, FinalList).
+    calcRowDomain(T, NextRow, Cols, List2, FinalList).
 
-addDomain([], _, FinalList, FinalList).
-addDomain([H|T], Value, List, FinalList) :-
+addRowDomain([], _, FinalList, FinalList).
+addRowDomain([H|T], Value, List, FinalList) :-
     NextValue is Value + 1,
     (
         H == 0 -> append(List, [Value], List2) ; List2 = List
     ),
-    addDomain(T, NextValue, List2, FinalList).
+    addRowDomain(T, NextValue, List2, FinalList).
+
+calcColDomain([], _, _, _, FinalList, FinalList).
+calcColDomain([H|T], Col, Cols,Rows, List, FinalList) :-
+    NextCol is Col + 1,
+    Edge is Rows - 1,
+    findall(N, nth0(N, H, -1), Fulcrums),
+    length(Fulcrums, NFulcrums),
+    (
+        (NFulcrums == 1, nth0(0, Fulcrums, Index), Index > 0, Index < Edge) -> addColDomain(H,0,Col,Cols, List, List2)
+        ; List2 = List
+    ),
+    calcColDomain(T, NextCol, Cols, Rows, List2, FinalList).
+
+addColDomain([],_,_,_,FinalList,FinalList).
+addColDomain([H|T], Index, Col, Cols, List, FinalList) :-
+    NextI is Index + 1,
+    Value is Col + (Index * Cols),
+    (
+        H == 0 -> append(List, [Value], List2) ; List2 = List
+    ),
+    addColDomain(T, NextI, Col, Cols, List2, FinalList).
 
 applyDomain([],_).
 applyDomain([H|T],DomainSet) :-
