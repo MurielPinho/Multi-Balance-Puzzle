@@ -6,12 +6,19 @@ row([1,0,0,0,0,0,-1,6]).
 t :-
     % generateRandomBoard(B, [Digits, Rows, Cols]),
     reset_timer,
-    exampleBoard4(B, [Digits, Rows, Cols]),
+    exampleBoard(B, [Digits, Rows, Cols]),
     printMatrix(B),
     write('Solving...'),nl,
     length(Solution, Digits),
-    Dom is Rows * Cols - 1,
-    domain(Solution, 0, Dom),
+
+    % Calc domain
+    calcDomain(B, 0, Cols, [], ListDomain),
+    write(ListDomain),nl,
+    list_to_fdset(ListDomain, DomainSet),
+
+    % Dom is Rows * Cols - 1,
+    % domain(Solution, 0, Dom),
+    applyDomain(Solution, DomainSet),
     all_distinct(Solution),
 
     % placing constraints
@@ -19,6 +26,7 @@ t :-
     addSolution(Solution, 1, Cols, B, FinalBoard),
     % torque constraints
     torqueConstraint(FinalBoard),
+
     % write('Transposing...\n'),
     transpose(FinalBoard, TFBoard),
     torqueConstraint(TFBoard),
@@ -29,6 +37,31 @@ t :-
 
     printMatrix(FinalBoard).
 
+calcDomain([], _, _, FinalList, FinalList).
+calcDomain([H|T], Row, Cols, List, FinalList) :-
+    NextRow #= Row + 1,
+    Edge #= Cols - 1,
+    write(H), nl,
+    findall(N, nth0(N, H, -1), Fulcrums),
+    length(Fulcrums, NFulcrums),
+    (
+        (NFulcrums == 1, nth0(0, Fulcrums, Index), Index #> 0, Index #< Edge) -> Value #= Row*Cols, addDomain(H,Value,List,List2)
+        ; List2 = List
+    ),
+    calcDomain(T, NextRow, Cols, List2, FinalList).
+
+addDomain([], _, FinalList, FinalList).
+addDomain([H|T], Value, List, FinalList) :-
+    NextValue #= Value + 1,
+    (
+        H #= 0 -> append(List, [Value], List2) ; List2 = List
+    ),
+    addDomain(T, NextValue, List2, FinalList).
+
+applyDomain([],_).
+applyDomain([H|T],DomainSet) :-
+    H in_set DomainSet,
+    applyDomain(T, DomainSet).
 
 constrainPlacing([], _, _, _).
 constrainPlacing([H|T], Cols, Rows, B) :-
@@ -114,7 +147,7 @@ rightTorque(List, N, FinalTorque):-
     NReversed #= L - N - 1,
     leftTorque(ReversedList, 0, NReversed, 0, FinalTorque).
 
-reset_timer :- statistics(walltime,_).	
+reset_timer :- statistics(walltime,_).
 print_time :-
 	statistics(walltime,[_,T]),
 	TS is ((T//10)*10)/1000,
