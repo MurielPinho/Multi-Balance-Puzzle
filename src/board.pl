@@ -87,7 +87,7 @@ createBaseList(J, Cols, TmpList, FinalList) :-
     J1 is J + 1,
     append(TmpList, [0], TmpList2),
     createBaseList(J1, Cols, TmpList2, FinalList).
-createBaseBoard(Rows, Rows, Cols, TmpBoard, FinalBoard) :- TmpBoard = FinalBoard.
+createBaseBoard(Rows, Rows, _Cols, TmpBoard, FinalBoard) :- TmpBoard = FinalBoard.
 createBaseBoard(I, Rows, Cols, TmpBoard, FinalBoard) :-
     I < Rows,
     I1 is I + 1,

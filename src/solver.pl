@@ -131,7 +131,7 @@ getNthElement(N, Cols, Board, Value) :-
     getValueFromMatrix(Board, I, J, Value).
 
 getLine(DesiredLine, DesiredLine, [H|_], H).
-getLine(I, DesiredLine, [H | T], Line) :-
+getLine(I, DesiredLine, [_H | T], Line) :-
     I #< DesiredLine,
     NextI #= I + 1,
     getLine(NextI, DesiredLine, T, Line).

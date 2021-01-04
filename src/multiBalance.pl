@@ -9,7 +9,7 @@
 :- consult('utilities.pl').
 
 r :-
-    reconsult('p.pl').
+    reconsult('multiBalance.pl').
 
 process_input(Value, Min, Max) :-
     repeat, %Will repeat until the input is accepted
