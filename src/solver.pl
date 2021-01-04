@@ -1,10 +1,6 @@
 
-% test row
-row([1,0,0,0,0,0,-1,6]).
-
-/* testing function */
+/* Solves puzzle Number from the database */
 solve(Number) :-
-    % generateRandomBoard(B, [Digits, Rows, Cols]),
     reset_timer,
     exampleBoard(Number, B, [Digits, Rows, Cols]),
     nl,nl,nl,
@@ -22,7 +18,6 @@ solve(Number) :-
     transpose(B, TB),
     calcColDomain(TB, 0, Cols,Rows, [], ColListDomain),
 
-    % printMatrix(TB),
     list_to_fdset(RowListDomain, RowDomainSet),
     list_to_fdset(ColListDomain, ColDomainSet),
     fdset_intersection(RowDomainSet, ColDomainSet, DomainSet),
@@ -31,7 +26,7 @@ solve(Number) :-
 
     % placing constraints
     constrainPlacing(Solution, Cols, Rows, B),
-    addSolution(Solution, 1, Cols, B, FinalBoard),
+    insertSolution(Solution, 1, Cols, B, FinalBoard),
     % torque constraints
     torqueConstraint(FinalBoard),
 
@@ -46,6 +41,7 @@ solve(Number) :-
     print_time,
     fd_statistics,nl,nl.
 
+/* Calculates Domain for Row */
 calcRowDomain([], _, _, FinalList, FinalList).
 calcRowDomain([H|T], Row, Cols, List, FinalList) :-
     NextRow is Row + 1,
@@ -58,6 +54,7 @@ calcRowDomain([H|T], Row, Cols, List, FinalList) :-
     ),
     calcRowDomain(T, NextRow, Cols, List2, FinalList).
 
+/* Adds values from Row to Domain*/
 addRowDomain([], _, FinalList, FinalList).
 addRowDomain([H|T], Value, List, FinalList) :-
     NextValue is Value + 1,
@@ -66,6 +63,7 @@ addRowDomain([H|T], Value, List, FinalList) :-
     ),
     addRowDomain(T, NextValue, List2, FinalList).
 
+/* Calculates Domain for Column */
 calcColDomain([], _, _, _, FinalList, FinalList).
 calcColDomain([H|T], Col, Cols,Rows, List, FinalList) :-
     NextCol is Col + 1,
@@ -78,6 +76,7 @@ calcColDomain([H|T], Col, Cols,Rows, List, FinalList) :-
     ),
     calcColDomain(T, NextCol, Cols, Rows, List2, FinalList).
 
+/* Adds values from Column to Domain*/
 addColDomain([],_,_,_,FinalList,FinalList).
 addColDomain([H|T], Index, Col, Cols, List, FinalList) :-
     NextI is Index + 1,
@@ -87,11 +86,13 @@ addColDomain([H|T], Index, Col, Cols, List, FinalList) :-
     ),
     addColDomain(T, NextI, Col, Cols, List2, FinalList).
 
+/* Applies domain the decision variables*/
 applyDomain([],_).
 applyDomain([H|T],DomainSet) :-
     H in_set DomainSet,
     applyDomain(T, DomainSet).
 
+/* Places contrains to the decision variables*/
 constrainPlacing([], _, _, _).
 constrainPlacing([H|T], Cols, Rows, B) :-
     getNthElement(H, Cols, B, Value),
@@ -124,27 +125,30 @@ constrainPlacing([H|T], Cols, Rows, B) :-
     FPosition2 #> 0, FPosition2 #< RowLength - 1,
     constrainPlacing(T, Cols, Rows, B).
 
-
+/* Returns Nth element from board*/
 getNthElement(N, Cols, Board, Value) :-
     I #= N/Cols, J #= mod(N, Cols),
-    % format('[~p,~p]\n',[I,J]),
     getValueFromMatrix(Board, I, J, Value).
 
+
+/* Returns line from board*/
 getLine(DesiredLine, DesiredLine, [H|_], H).
 getLine(I, DesiredLine, [_H | T], Line) :-
     I #< DesiredLine,
     NextI #= I + 1,
     getLine(NextI, DesiredLine, T, Line).
 
-addSolution([], _Index, _Cols, FinalBoard, FinalBoard).
-addSolution([N | T], Index, Cols, B, FinalBoard):-
+/* Inserts the solution values to the board */
+insertSolution([], _Index, _Cols, FinalBoard, FinalBoard).
+insertSolution([N | T], Index, Cols, B, FinalBoard):-
     I #= N/Cols, J #= mod(N, Cols),
 
     replaceInMatrix(B,I,J,Index,B2),
 
     NextI #= Index + 1,
-    addSolution(T, NextI, Cols, B2, FinalBoard).
+    insertSolution(T, NextI, Cols, B2, FinalBoard).
 
+/* Places contrains to the decision variables*/
 torqueConstraint([]).
 torqueConstraint([H | T]) :-
     % write(H),nl,
@@ -159,13 +163,11 @@ checkTorque(List, N) :-
     leftTorque(List, 0, N, 0, LeftTorque),
     rightTorque(List, N, RightTorque),
     RightTorque #= LeftTorque.
-    % format('Left TORQUE: ~p   Right TORQUE: ~p\n', [LeftTorque,RightTorque]).
 
 /* calculate torque starting from the left */
 leftTorque(_ ,N, N, FinalTorque, FinalTorque).
 leftTorque([H|T], I, N, Torque, FinalTorque) :-
     NextI #= I + 1,
-    % format('(~p - ~p) * ~p + ~p', [N,I,H,Torque]),nl, might need this later
     TorqueTmp #= (N-I) * H + Torque,
     leftTorque(T, NextI, N, TorqueTmp, FinalTorque).
 
@@ -176,7 +178,10 @@ rightTorque(List, N, FinalTorque):-
     NReversed #= L - N - 1,
     leftTorque(ReversedList, 0, NReversed, 0, FinalTorque).
 
+/* Resets timer*/
 reset_timer :- statistics(walltime,_).
+
+/* Prints time*/
 print_time :-
 	statistics(walltime,[_,T]),
 	TS is ((T//10)*10)/1000,
